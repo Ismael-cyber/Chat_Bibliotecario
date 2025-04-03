@@ -1,0 +1,115 @@
+{
+  "name": "Buscar_Livros",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "tema"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "056bd381-f84f-45a2-98c7-b8b55f753d87",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://192.168.15.171:5000/buscar_livros",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\"Content-Type\": \"application/json\"}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"tema\": \"{{ $json.tema }}\"}\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "d740ee55-6af6-4ec4-bc06-25bc396e8d94",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "eba2dd0d-a41f-4cdc-9017-a9c5ad37724f",
+              "name": "titulo",
+              "value": "={{ $json.titulo }}",
+              "type": "string"
+            },
+            {
+              "id": "fc1556dc-fc23-4ca3-bd25-a4f65d73883f",
+              "name": "autor",
+              "value": "={{ $json.autor }}",
+              "type": "string"
+            },
+            {
+              "id": "2b04b9f9-15ef-4adc-a50a-a246fcf0b0fb",
+              "name": "sinopse",
+              "value": "={{ $json.sinopse }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        440,
+        0
+      ],
+      "id": "5f307c6a-e625-4c0b-aa1a-8fce3eb57195",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8026535a-e3ba-475a-91aa-68874ac347f8",
+  "meta": {
+    "instanceId": "72d1a423d81d3e5d75c4646c17fb5972da4f8e373592516979232bd752faa879"
+  },
+  "id": "gaBCY7c39TYXMZXK",
+  "tags": []
+}

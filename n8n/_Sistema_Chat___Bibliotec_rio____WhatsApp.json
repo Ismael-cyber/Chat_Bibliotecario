@@ -1,0 +1,285 @@
+{
+  "name": "[Sistema Chat - Bibliotecário] - WhatsApp",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chat-bibliotecario",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -280,
+        0
+      ],
+      "id": "856aa81d-8be5-4486-927c-ed98de0a2858",
+      "name": "Webhook",
+      "webhookId": "a9ae1295-ed90-4883-89b9-63c94f0b932c"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3105bcbe-14bd-47ea-bf3d-15f14592f0d0",
+              "name": "nameInstance",
+              "value": "={{ $json.body.instance }}",
+              "type": "string"
+            },
+            {
+              "id": "59f6673b-ac99-43e5-8cf1-0bc7d7177452",
+              "name": "number",
+              "value": "={{ $json.body.data.key.remoteJid.split('@').first() }}",
+              "type": "string"
+            },
+            {
+              "id": "974f6ca8-4374-44bf-8414-8917d339bb71",
+              "name": "message",
+              "value": "={{ $json.body.data.message.conversation }}",
+              "type": "string"
+            },
+            {
+              "id": "f7be777f-2a84-4b96-ae2d-c83f2c6069a0",
+              "name": "id",
+              "value": "={{ $json.body.data.key.id }}",
+              "type": "string"
+            },
+            {
+              "id": "74b02b41-da25-4c2e-9fba-a54f9ed0dccc",
+              "name": "prompt",
+              "value": "=Prompt para o Agente de IA:\n\nVocê é um assistente de estudos inteligente e carismático, pronto para ajudar os usuários a se aprofundarem em diversos temas, recomendando livros adequados para cada assunto.\nInstruções de comportamento:\n\n    Seja educado, amigável e motivador. Demonstre entusiasmo ao ajudar o usuário.\n\n    Sempre cumprimente o usuário de maneira calorosa ao receber a primeira mensagem.\n\n    Pergunte o nome do usuário para tornar a conversa mais pessoal.\n\n    Se o usuário perguntar sobre indicações de livros({{ $json.body.data.message.conversation }}) ou quiser estudar um tema mais a fundo, chame a função Buscar_Livros, que retornará uma lista de livros relacionados ao tema.\n\n    ATENÇÃO: SEMPRE BUSQUE LIVROS DA FUNÇÃO \"Buscar_Livros\"!!!\n\n    Ao receber as recomendações de livros, apresente os resultados de forma organizada, mencionando o título, o autor e uma breve sinopse de cada livro.\n\nExemplo de um Fluxo de Conversa:\n\nUsuário: Olá!\nAgente: Oi! Que bom te ver por aqui! 😊 Como posso te ajudar hoje? Ah, e qual é o seu nome?\n\nUsuário: Meu nome é Lucas.\nAgente: Prazer, Lucas! 📚 Eu sou seu assistente de estudos e estou aqui para te ajudar a explorar qualquer tema do seu interesse. Quer uma recomendação de leitura sobre algum assunto específico?\n\nUsuário: Quero aprender mais sobre inteligência artificial.\nAgente: Ótima escolha, Lucas! 🚀 Vou buscar algumas recomendações de livros sobre inteligência artificial para você. Aguarde um momento...\n\nAgente: Aqui estão alguns livros incríveis sobre Inteligência Artificial para você:\n\n📖 Título: \"Inteligência Artificial: Uma Abordagem Moderna\"\n✍️ Autor: Stuart Russell e Peter Norvig\n📄 Sinopse: Considerado um dos livros mais completos sobre IA, aborda desde conceitos básicos até técnicas avançadas de aprendizado de máquina e redes neurais.\n\n📖 Título: \"Artificial Intelligence: Foundations of Computational Agents\"\n✍️ Autor: David Poole e Alan Mackworth\n📄 Sinopse: Um excelente livro para entender a teoria e prática da IA, com explicações detalhadas sobre agentes inteligentes e aprendizado de máquina.\n\nSe precisar de mais recomendações ou quiser explorar outro tema, é só me avisar! 😃📚",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -40,
+        0
+      ],
+      "id": "d1de728c-82d3-478c-b3cb-937db6ece218",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        140,
+        240
+      ],
+      "id": "4e8cc464-5031-4616-afd3-0159d1bee43d",
+      "name": "Groq - LLMs",
+      "credentials": {
+        "groqApi": {
+          "id": "CLNkRjXfV7OcTfGR",
+          "name": "Buscar_Livros"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8080/message/sendText/AutomacaoTeste",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $('Edit Fields').item.json.number }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        560,
+        0
+      ],
+      "id": "cc46ac78-b1f7-4fa0-9083-ba8405de82e4",
+      "name": "Requisão HTTP",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "7exZQyYsu1MVA9Q0",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "={{ $json.prompt }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        180,
+        0
+      ],
+      "id": "33b337bc-a383-4228-a587-b8f064d1b3cf",
+      "name": "Chat - IA Bibliotecário"
+    },
+    {
+      "parameters": {
+        "name": "Buscar_Livros",
+        "description": "O usuário pedirá recomendações de livros sobre um determinado tema. Sempre que isso acontecer, chame a função \"buscar_livros\" com o tema fornecido.",
+        "workflowId": {
+          "__rl": true,
+          "value": "gaBCY7c39TYXMZXK",
+          "mode": "list",
+          "cachedResultName": "Buscar_Livros"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "tema": "={{ $json.message }}"
+          },
+          "matchingColumns": [
+            "tema"
+          ],
+          "schema": [
+            {
+              "id": "tema",
+              "displayName": "tema",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.1,
+      "position": [
+        420,
+        240
+      ],
+      "id": "d54d0de0-f9c8-420c-802f-9522950ac73a",
+      "name": "Function Calling"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Edit Fields').item.json.number }}",
+        "contextWindowLength": 0
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        280,
+        240
+      ],
+      "id": "9af1ec6e-4bbb-4016-a7ad-4317a1a9ba2c",
+      "name": "Memória do chat",
+      "credentials": {
+        "postgres": {
+          "id": "v8eKHAHH6lvELZgP",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Chat - IA Bibliotecário",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq - LLMs": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Chat - IA Bibliotecário",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat - IA Bibliotecário": {
+      "main": [
+        [
+          {
+            "node": "Requisão HTTP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Function Calling": {
+      "ai_tool": [
+        [
+          {
+            "node": "Chat - IA Bibliotecário",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memória do chat": {
+      "ai_memory": [
+        [
+          {
+            "node": "Chat - IA Bibliotecário",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f56ba872-6efe-41c1-ae7d-4d23aaaf4fb9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "72d1a423d81d3e5d75c4646c17fb5972da4f8e373592516979232bd752faa879"
+  },
+  "id": "KnCSlCQ7j9GnLSKH",
+  "tags": []
+}
